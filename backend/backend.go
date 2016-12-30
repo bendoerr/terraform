@@ -44,10 +44,12 @@ type Operation struct {
 
 	// Configuration related to the operation:
 
-	Id        string       // For local, this is a plan file
-	Module    *module.Tree // Can be nil
-	Targets   []string
-	Variables map[string]interface{}
+	Id          string       // For local, this is a plan file
+	Destroy     bool         // Destroy mode
+	Module      *module.Tree // Can be nil
+	Parallelism int          // Max in-flight parallel for terraform.Context
+	Targets     []string
+	Variables   map[string]interface{}
 
 	// Meta
 

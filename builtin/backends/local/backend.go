@@ -80,6 +80,48 @@ func (b *Local) State() (state.State, error) {
 	return s, nil
 }
 
-func (b *Local) Operation(*backend.Operation) error {
+func (b *Local) Operation(op *backend.Operation) error {
+	// Build the basic context opts from our operation param
+	opts := &terraform.ContextOpts{
+		Destroy:     op.Destroy,
+		Module:      op.Module,
+		Parallelism: op.Parallelism,
+		Targets:     op.Targets,
+		Variables:   op.Variables,
+	}
+
+	// Load our state
+	state, err := b.State()
+	if err != nil {
+		return errwrap.Wrapf("Error loading state: {{err}}", err)
+	}
+	if err := state.RefreshState(); err != nil {
+		return errwrap.Wrapf("Error loading state: {{err}}", err)
+	}
+	opts.State = state.State()
+
+	// Build the context
+	ctx, err := terraform.NewContext(opts)
+	if err != nil {
+		return err
+	}
+
+	// TODO: ask for input
+	// TODO: validate context
+
+	// Perform operation
+	newState, err := ctx.Refresh()
+	if err != nil {
+		return errwrap.Wrapf("Error refreshing state: {{err}}", err)
+	}
+
+	// Write and persist the state
+	if err := state.WriteState(newState); err != nil {
+		return errwrap.Wrapf("Error writing state: {{err}}", err)
+	}
+	if err := state.PersistState(); err != nil {
+		return errwrap.Wrapf("Error saving state: {{err}}", err)
+	}
+
 	return nil
 }
