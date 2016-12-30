@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os/exec"
 
 	"github.com/hashicorp/terraform/helper/schema"
@@ -69,6 +70,7 @@ func dataSourceRead(d *schema.ResourceData, meta interface{}) error {
 	cmd.Stdin = bytes.NewReader(queryJson)
 
 	resultJson, err := cmd.Output()
+	log.Printf("[DEBUG] EXTERNAL::::  %s", resultJson.(string))
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {
 			if exitErr.Stderr != nil && len(exitErr.Stderr) > 0 {
