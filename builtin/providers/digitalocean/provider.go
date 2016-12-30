@@ -1,6 +1,8 @@
 package digitalocean
 
 import (
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 )
@@ -35,6 +37,8 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	config := Config{
 		Token: d.Get("token").(string),
 	}
+	log.Printf("[DEBUG] DO TOKEN::::  %s", d.Get("token").(string))
 
 	return config.Client()
+
 }
